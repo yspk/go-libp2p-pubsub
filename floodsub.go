@@ -90,6 +90,7 @@ func (fs *FloodSubRouter) Publish(msg *Message) {
 
 		select {
 		case mch <- out:
+			log.Debugf("Publish: %s, Peer: %s", topic, pid)
 			fs.tracer.SendRPC(out, pid)
 		default:
 			log.Infof("dropping message to peer %s: queue full", pid)

@@ -221,7 +221,7 @@ type Message struct {
 	ID            string
 	ReceivedFrom  peer.ID
 	ValidatorData interface{}
-	Local bool
+	Local         bool
 }
 
 func (m *Message) GetFrom() peer.ID {
@@ -608,6 +608,7 @@ func (p *PubSub) processLoop(ctx context.Context) {
 			p.handleIncomingRPC(rpc)
 
 		case msg := <-p.sendMsg:
+			log.Debugf("p.sendMsg Publish")
 			p.publishMessage(msg)
 
 		case req := <-p.addVal:
@@ -886,6 +887,7 @@ func (p *PubSub) announce(topic string, sub bool) {
 	for pid, peer := range p.peers {
 		select {
 		case peer <- out:
+			log.Debugf("announce: %s", topic)
 			p.tracer.SendRPC(out, pid)
 		default:
 			log.Infof("Can't send announce message to peer %s: queue full; scheduling retry", pid)
@@ -929,6 +931,7 @@ func (p *PubSub) doAnnounceRetry(pid peer.ID, topic string, sub bool) {
 	out := rpcWithSubs(subopt)
 	select {
 	case peer <- out:
+		log.Debugf("Publish doAnnounceRetry")
 		p.tracer.SendRPC(out, pid)
 	default:
 		log.Infof("Can't send announce message to peer %s: queue full; scheduling retry", pid)
@@ -1065,7 +1068,7 @@ func (p *PubSub) handleIncomingRPC(rpc *RPC) {
 				log.Debug("received message in topic we didn't subscribe to; ignoring message")
 				continue
 			}
-
+			log.Debugf("p.pushMsg(&Message Publish")
 			p.pushMsg(&Message{pmsg, "", rpc.from, nil, false})
 		}
 	}
@@ -1166,7 +1169,7 @@ func (p *PubSub) publishMessage(msg *Message) {
 	p.tracer.DeliverMessage(msg)
 	p.notifySubs(msg)
 	if !msg.Local {
-		p.rt.Publish(msg)
+		//p.rt.Publish(msg)
 	}
 }
 

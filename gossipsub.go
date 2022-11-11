@@ -1117,6 +1117,7 @@ func (gs *GossipSubRouter) Leave(topic string) {
 
 func (gs *GossipSubRouter) sendGraft(p peer.ID, topic string) {
 	graft := []*pb.ControlGraft{{TopicID: &topic}}
+	log.Debugf("sendGraft to %s, using: %s", p, topic)
 	out := rpcWithControl(nil, nil, nil, graft, nil)
 	gs.sendRPC(p, out)
 }
@@ -1124,6 +1125,7 @@ func (gs *GossipSubRouter) sendGraft(p peer.ID, topic string) {
 func (gs *GossipSubRouter) sendPrune(p peer.ID, topic string, isUnsubscribe bool) {
 	prune := []*pb.ControlPrune{gs.makePrune(p, topic, gs.doPX, isUnsubscribe)}
 	out := rpcWithControl(nil, nil, nil, nil, prune)
+	log.Debugf("sendPrune to %s, using: %s, isUnsubscribe: %v", p, topic, isUnsubscribe)
 	gs.sendRPC(p, out)
 }
 
@@ -1187,6 +1189,7 @@ func (gs *GossipSubRouter) doDropRPC(rpc *RPC, p peer.ID, reason string) {
 func (gs *GossipSubRouter) doSendRPC(rpc *RPC, p peer.ID, mch chan *RPC) {
 	select {
 	case mch <- rpc:
+		log.Debugf("Publish doSendRPC")
 		gs.tracer.SendRPC(rpc, p)
 	default:
 		gs.doDropRPC(rpc, p, "queue full")
@@ -1323,6 +1326,7 @@ func (gs *GossipSubRouter) heartbeatTimer() {
 	for {
 		select {
 		case <-ticker.C:
+			log.Debugf("mesh peer count: %d", len(gs.mesh["/eth2/4a26c58b/beacon_block/ssz_snappy"]))
 			select {
 			case gs.p.eval <- gs.heartbeat:
 			case <-gs.p.ctx.Done():

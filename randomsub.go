@@ -151,6 +151,7 @@ func (rs *RandomSubRouter) Publish(msg *Message) {
 
 		select {
 		case mch <- out:
+			log.Debugf("RandomSubRouter) Publish")
 			rs.tracer.SendRPC(out, p)
 		default:
 			log.Infof("dropping message to peer %s: queue full", p)
