@@ -559,6 +559,7 @@ func (gs *GossipSubRouter) RemovePeer(p peer.ID) {
 }
 
 func (gs *GossipSubRouter) EnoughPeers(topic string, suggested int) bool {
+	log.Debugf("EnoughPeers topic:%s, suggested: %d", topic, suggested)
 	// check all peers in the topic
 	tmap, ok := gs.p.topics[topic]
 	if !ok {
@@ -790,7 +791,7 @@ func (gs *GossipSubRouter) handleGraft(p peer.ID, ctl *pb.ControlMessage) []*pb.
 		}
 
 		// check the score
-		if score < 0 {
+		if score < -100 { // 0
 			// we don't GRAFT peers with negative score
 			log.Debugf("GRAFT: ignoring peer %s with negative score [score = %f, topic = %s]", p, score, topic)
 			// we do send them PRUNE however, because it's a matter of protocol correctness
@@ -1189,7 +1190,6 @@ func (gs *GossipSubRouter) doDropRPC(rpc *RPC, p peer.ID, reason string) {
 func (gs *GossipSubRouter) doSendRPC(rpc *RPC, p peer.ID, mch chan *RPC) {
 	select {
 	case mch <- rpc:
-		log.Debugf("Publish doSendRPC")
 		gs.tracer.SendRPC(rpc, p)
 	default:
 		gs.doDropRPC(rpc, p, "queue full")

@@ -151,7 +151,7 @@ func (p *PubSub) handleSendingMessages(ctx context.Context, s network.Stream, ou
 	wc := protoio.NewDelimitedWriter(bufw)
 
 	writeMsg := func(msg proto.Message) error {
-		log.Debugf("handleSendingMessages %s, topic :%s", s.Conn().RemotePeer().String(), s.Protocol())
+		//log.Debugf("handleSendingMessages %s, topic :%s", s.Conn().RemotePeer().String(), s.Protocol())
 		err := wc.WriteMsg(msg)
 		if err != nil {
 			return err

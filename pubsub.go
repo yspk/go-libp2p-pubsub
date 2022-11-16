@@ -1068,7 +1068,6 @@ func (p *PubSub) handleIncomingRPC(rpc *RPC) {
 				log.Debug("received message in topic we didn't subscribe to; ignoring message")
 				continue
 			}
-			log.Debugf("p.pushMsg(&Message Publish")
 			p.pushMsg(&Message{pmsg, "", rpc.from, nil, false})
 		}
 	}
