@@ -608,7 +608,6 @@ func (p *PubSub) processLoop(ctx context.Context) {
 			p.handleIncomingRPC(rpc)
 
 		case msg := <-p.sendMsg:
-			log.Debugf("p.sendMsg Publish")
 			p.publishMessage(msg)
 
 		case req := <-p.addVal:
