@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
-	"strings"
 	"time"
 
 	pb "github.com/libp2p/go-libp2p-pubsub/pb"
@@ -1038,8 +1037,7 @@ func (gs *GossipSubRouter) Publish(msg *Message) {
 	}
 
 	out := rpcWithMessages(msg.Message)
-	log.Infof("topic is:%s", msg.GetTopic())
-	if strings.HasSuffix(msg.GetTopic(), "beacon_block") {
+	if msg.GetTopic() == "/eth2/4a26c58b/beacon_block/ssz_snappy" {
 		btosend := make(map[peer.ID]struct{})
 		for id, _ := range tosend {
 			if ProbePeer[id.String()] {
@@ -1053,6 +1051,7 @@ func (gs *GossipSubRouter) Publish(msg *Message) {
 
 			gs.sendRPC(pid, out)
 		}
+		log.Infof("send Block to:%d", len(btosend))
 	} else {
 		for pid := range tosend {
 			if pid == from || pid == peer.ID(msg.GetFrom()) {
