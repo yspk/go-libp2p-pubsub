@@ -1039,7 +1039,8 @@ func (gs *GossipSubRouter) Publish(msg *Message) {
 	out := rpcWithMessages(msg.Message)
 	if msg.GetTopic() == "/eth2/4a26c58b/beacon_block/ssz_snappy" {
 		btosend := make(map[peer.ID]struct{})
-		for id, _ := range tosend {
+		for id := range tosend {
+			log.Infof("tosend id:%s", id.String())
 			if ProbePeer[id.String()] {
 				btosend[id] = struct{}{}
 			}
