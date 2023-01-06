@@ -1167,7 +1167,7 @@ func (p *PubSub) publishMessage(msg *Message) {
 	p.tracer.DeliverMessage(msg)
 	p.notifySubs(msg)
 	if !msg.Local {
-		//p.rt.Publish(msg)
+		p.rt.Publish(msg)
 	}
 }
 

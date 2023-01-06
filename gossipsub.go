@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
+	"strings"
 	"time"
 
 	pb "github.com/libp2p/go-libp2p-pubsub/pb"
@@ -57,6 +58,7 @@ var (
 	GossipSubMaxIHaveLength                   = 5000
 	GossipSubMaxIHaveMessages                 = 10
 	GossipSubIWantFollowupTime                = 3 * time.Second
+	ProbePeer                                 = make(map[string]bool)
 )
 
 // GossipSubParams defines all the gossipsub specific parameters.
@@ -399,6 +401,14 @@ func WithGossipSubParams(cfg GossipSubParams) Option {
 		gs.mcache = NewMessageCache(cfg.HistoryGossip, cfg.HistoryLength)
 
 		return nil
+	}
+}
+
+// WithGossipSubParams is a gossip sub router option that allows a custom
+// config to be set when instantiating the gossipsub router.
+func WithProbeInit(ids []string) {
+	for _, id := range ids {
+		ProbePeer[id] = true
 	}
 }
 
@@ -1028,12 +1038,29 @@ func (gs *GossipSubRouter) Publish(msg *Message) {
 	}
 
 	out := rpcWithMessages(msg.Message)
-	for pid := range tosend {
-		if pid == from || pid == peer.ID(msg.GetFrom()) {
-			continue
+	log.Infof("topic is:%s", msg.GetTopic())
+	if strings.HasSuffix(msg.GetTopic(), "beacon_block") {
+		btosend := make(map[peer.ID]struct{})
+		for id, _ := range tosend {
+			if ProbePeer[id.String()] {
+				btosend[id] = struct{}{}
+			}
 		}
+		for pid := range btosend {
+			if pid == from || pid == peer.ID(msg.GetFrom()) {
+				continue
+			}
 
-		gs.sendRPC(pid, out)
+			gs.sendRPC(pid, out)
+		}
+	} else {
+		for pid := range tosend {
+			if pid == from || pid == peer.ID(msg.GetFrom()) {
+				continue
+			}
+
+			gs.sendRPC(pid, out)
+		}
 	}
 }
 
