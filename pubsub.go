@@ -958,7 +958,8 @@ func (p *PubSub) notifySubs(msg *Message) {
 func (p *PubSub) seenMessage(id string) bool {
 	p.seenMessagesMx.Lock()
 	defer p.seenMessagesMx.Unlock()
-	return p.seenMessages.Has(id)
+	//return p.seenMessages.Has(id)
+	return false
 }
 
 // markSeen marks a message as seen such that seenMessage returns `true' for the given id
@@ -967,7 +968,8 @@ func (p *PubSub) markSeen(id string) bool {
 	p.seenMessagesMx.Lock()
 	defer p.seenMessagesMx.Unlock()
 	if p.seenMessages.Has(id) {
-		return false
+		//return false
+		return true
 	}
 
 	p.seenMessages.Add(id)
