@@ -237,7 +237,8 @@ func (v *validation) Push(src peer.ID, msg *Message) bool {
 			log.Debugf("message validation throttled: queue full; dropping message from %s", src)
 			v.tracer.RejectMessage(msg, RejectValidationQueueFull)
 		}
-		return false
+		//return false
+		return true
 	}
 
 	return true
